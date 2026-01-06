@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Result</title>
+</head>
+
+<body>
+
+<h2>Quiz Result</h2>
+<p>Great work, <b id="user"></b> 🎉</p>
+
+<script>
+document.getElementById("user").innerHTML = localStorage.getItem("username");
+</script>
+
+<p><b>Quiz:</b> <span id="quizTitle"></span></p>
+<p><b>Score:</b> <span id="score"></span></p>
+<p><b>Total Questions:</b> <span id="total"></span></p>
+<p><b>Percentage:</b> <span id="percent"></span>%</p>
+
+
+<br>
+
+<button onclick="goHome()">Go to Dashboard</button>
+<button onclick="logout()">Logout</button>
+
+<script>
+// load from session storage
+const result = JSON.parse(sessionStorage.getItem("last_result"));
+
+if(!result){
+    // if page opened directly
+    window.location.href = "/home/";
+}
+
+document.getElementById("quizTitle").innerHTML = result.quiz;
+document.getElementById("score").innerHTML = result.score;
+document.getElementById("total").innerHTML = result.total;
+
+document.getElementById("percent").innerHTML =
+    ((result.score / result.total) * 100).toFixed(2);
+
+function goHome(){
+    window.location.href = "/home/";
+}
+
+function logout(){
+    localStorage.clear();
+    sessionStorage.clear();
+    window.location.href = "/login/";
+}
+</script>
+
+</body>
+</html>

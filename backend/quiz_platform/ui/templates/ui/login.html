@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+
+<h2>Login</h2>
+
+<input id="username" placeholder="Username"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+
+<button onclick="login()">Login</button>
+
+<p id="msg" style="color:red;"></p>
+
+<p>
+Don't have an account?
+<a href="/register/">Create one</a>
+</p>
+
+<script>
+function login(){
+
+  fetch("/api/accounts/login/", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      username: document.getElementById("username").value,
+      password: document.getElementById("password").value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+
+    if(data.access){
+
+        // save token
+        localStorage.setItem("token", data.access);
+
+        // save admin flag
+        localStorage.setItem("is_admin", data.is_admin);
+
+        // optional: save username
+        localStorage.setItem("username", document.getElementById("username").value);
+
+        // 🔥 redirect based on role
+        if(data.is_admin){
+            window.location.href = "/admin/";   // admin panel
+        } else {
+            window.location.href = "/home/";    // quiz list page
+        }
+    }
+    else{
+        document.getElementById("msg").innerHTML = "Invalid username or password";
+    }
+  });
+}
+</script>
+
+</body>
+</html>

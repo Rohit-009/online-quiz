@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Attempt</title>
+</head>
+
+<body>
+
+<h2 id="title"></h2>
+
+<p><b>Time Left:</b> <span id="timer">--:--</span></p>
+
+<p>Logged in as: <b id="user"></b></p>
+
+<div id="quiz"></div>
+
+<button id="submitBtn" onclick="submitQuiz()">Submit</button>
+
+<p id="result"></p>
+
+<script>
+// ------------------ GLOBAL VARIABLES FIRST ------------------
+let timerInterval;                      <!-- moved to top (fixes your error) -->
+const quiz_id = "{{quiz_id}}";
+const answers = {};
+const token = localStorage.getItem("token");
+
+// username display
+document.getElementById("user").innerHTML = localStorage.getItem("username");
+
+// protect page
+if(!token){
+    window.location.href="/login/";
+}
+
+
+// ------------------ LOAD QUIZ ------------------
+let quizData = sessionStorage.getItem("current_quiz");
+
+if(quizData){
+    quizData = JSON.parse(quizData);
+    renderQuiz(quizData);
+} else {
+    fetch("/api/quizzes/" + quiz_id + "/")
+    .then(res => res.json())
+    .then(data => renderQuiz(data));
+}
+
+
+// ------------------ RENDER QUIZ ------------------
+function renderQuiz(data){
+
+    document.getElementById("title").innerHTML = data.title;
+
+    let html = "";
+
+    data.questions.forEach(q => {
+
+        html += `<p><b>${q.text}</b></p>`;
+
+        q.options.forEach(o => {
+            html += `
+                <input type="radio"
+                       name="q${q.id}"
+                       value="${o.id}"
+                       onchange="answers[${q.id}]='${o.id}'">
+                ${o.text}<br>
+            `;
+        });
+    });
+
+    document.getElementById("quiz").innerHTML = html;
+
+    // start timer
+    startTimer(60);
+}
+
+
+// ------------------ TIMER ------------------
+function startTimer(duration){
+
+    let time = duration;
+
+    timerInterval = setInterval(()=>{
+
+        let minutes = Math.floor(time / 60);
+        let seconds = time % 60;
+
+        document.getElementById("timer").innerHTML =
+            `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+
+        if(time <= 0){
+            clearInterval(timerInterval);
+            document.getElementById("timer").innerHTML = "TIME UP";
+            disableOptions();
+            submitQuiz(true);
+        }
+
+        time--;
+
+    }, 1000);
+}
+
+function disableOptions(){
+    document.querySelectorAll("input[type=radio]").forEach(el=>{
+        el.disabled = true;
+    });
+}
+
+
+// ------------------ SUBMIT QUIZ ------------------
+function submitQuiz(auto=false){
+
+    document.getElementById("submitBtn").disabled = true;
+
+    fetch("/api/quizzes/submit/", {
+        method: "POST",
+        headers:{
+            "Content-Type":"application/json",
+            "Authorization":"Bearer " + token
+        },
+        body: JSON.stringify({
+            quiz_id: quiz_id,
+            answers: answers
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        clearInterval(timerInterval);
+        disableOptions();
+
+        // save data for result page
+        sessionStorage.setItem("last_result", JSON.stringify(data));
+        sessionStorage.setItem("last_quiz_title", document.getElementById("title").innerText);
+
+        // go to result screen
+        window.location.href = "/result/";
+    });
+}
+</script>
+
+</body>
+</html>

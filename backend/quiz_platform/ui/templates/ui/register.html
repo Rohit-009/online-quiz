@@ -1,0 +1,34 @@
+<h2>Register</h2>
+
+<input id="username" placeholder="Username"><br>
+<input id="password" type="password" placeholder="Password"><br>
+<button onclick="register()">Create Account</button>
+
+<p id="msg"></p>
+
+<p>
+Already have an account?
+<a href="/login/">Login here</a>
+</p>
+
+<script>
+function register(){
+  fetch("/api/accounts/register/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+      if(data.message){
+          document.getElementById("msg").innerHTML = "Account created ✔ Redirecting to login...";
+          setTimeout(()=> window.location.href="/login/", 1200)
+      } else {
+          document.getElementById("msg").innerHTML = data.error || "Error occurred"
+      }
+  })
+}
+</script>
