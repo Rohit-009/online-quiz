@@ -2,34 +2,107 @@
 <html>
 <head>
     <title>Quiz Result</title>
+
+    <style>
+
+        body{
+            margin:0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg,#8E2DE2,#4A00E0);
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            color:white;
+        }
+
+        .card{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            padding:35px 45px;
+            border-radius:20px;
+            width:450px;
+            box-shadow:0 0 25px rgba(0,0,0,0.25);
+            text-align:center;
+        }
+
+        .score-box{
+            margin-top:10px;
+            background: rgba(0,0,0,0.25);
+            padding:15px;
+            border-radius:14px;
+        }
+
+        h2{
+            margin-top:0;
+        }
+
+        button{
+            width:48%;
+            padding:10px;
+            border:none;
+            margin-top:15px;
+            border-radius:10px;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        .primary{
+            background:#00ff9c;
+            color:black;
+        }
+
+        .primary:hover{
+            background:#39ffb7;
+        }
+
+        .danger{
+            background:#ff5252;
+            color:white;
+        }
+
+        .danger:hover{
+            background:#ff7777;
+        }
+
+    </style>
+
 </head>
 
 <body>
 
-<h2>Quiz Result</h2>
-<p>Great work, <b id="user"></b> 🎉</p>
+<div class="card">
+
+    <h2>🎉 Quiz Result</h2>
+
+    <p>Great work, <b id="user"></b> 👏</p>
+
+    <div class="score-box">
+
+        <p><b>Quiz:</b> <span id="quizTitle"></span></p>
+        <p><b>Score:</b> <span id="score"></span></p>
+        <p><b>Total Questions:</b> <span id="total"></span></p>
+        <p><b>Percentage:</b> <span id="percent"></span>%</p>
+
+    </div>
+
+    <div style="display:flex; gap:4%;">
+        <button class="primary" onclick="goHome()">Dashboard</button>
+        <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+</div>
 
 <script>
-document.getElementById("user").innerHTML = localStorage.getItem("username");
-</script>
+// show username
+document.getElementById("user").innerHTML =
+    localStorage.getItem("username") || "User";
 
-<p><b>Quiz:</b> <span id="quizTitle"></span></p>
-<p><b>Score:</b> <span id="score"></span></p>
-<p><b>Total Questions:</b> <span id="total"></span></p>
-<p><b>Percentage:</b> <span id="percent"></span>%</p>
-
-
-<br>
-
-<button onclick="goHome()">Go to Dashboard</button>
-<button onclick="logout()">Logout</button>
-
-<script>
-// load from session storage
+// load saved result data
 const result = JSON.parse(sessionStorage.getItem("last_result"));
 
 if(!result){
-    // if page opened directly
+    // opened directly
     window.location.href = "/home/";
 }
 
@@ -37,9 +110,11 @@ document.getElementById("quizTitle").innerHTML = result.quiz;
 document.getElementById("score").innerHTML = result.score;
 document.getElementById("total").innerHTML = result.total;
 
+// percentage
 document.getElementById("percent").innerHTML =
     ((result.score / result.total) * 100).toFixed(2);
 
+// navigation
 function goHome(){
     window.location.href = "/home/";
 }

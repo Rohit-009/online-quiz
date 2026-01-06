@@ -2,33 +2,130 @@
 <html>
 <head>
     <title>Quiz Attempt</title>
+
+    <style>
+
+        body{
+            margin:0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg,#00c6ff,#0072ff);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            color:#fff;
+        }
+
+        .card{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            padding:30px 40px;
+            border-radius:18px;
+            width:800px;
+            box-shadow:0 0 25px rgba(0,0,0,0.25);
+        }
+
+        h2{
+            text-align:center;
+            margin-top:0;
+        }
+
+        #timer{
+            background:#ff5252;
+            padding:6px 14px;
+            border-radius:20px;
+            color:white;
+            font-weight:bold;
+        }
+
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            margin-bottom:12px;
+            font-size:15px;
+        }
+
+        .question{
+            background:rgba(0,0,0,0.15);
+            padding:12px 15px;
+            border-radius:12px;
+            margin-top:12px;
+        }
+
+        .question b{
+            font-size:15px;
+        }
+
+        input[type=radio]{
+            transform:scale(1.2);
+            margin-right:6px;
+            cursor:pointer;
+        }
+
+        #submitBtn{
+            margin-top:18px;
+            padding:12px;
+            width:100%;
+            border:none;
+            border-radius:10px;
+            background:#00ff9c;
+            font-weight:bold;
+            cursor:pointer;
+            font-size:16px;
+            color:#111;
+        }
+
+        #submitBtn:hover{
+            background:#39ffb7;
+        }
+
+        #result{
+            text-align:center;
+            margin-top:10px;
+            font-size:18px;
+            font-weight:bold;
+        }
+    </style>
 </head>
 
 <body>
 
-<h2 id="title"></h2>
+<div class="card">
 
-<p><b>Time Left:</b> <span id="timer">--:--</span></p>
+    <h2 id="title"></h2>
 
-<p>Logged in as: <b id="user"></b></p>
+    <div class="topbar">
+        <div>
+            <b>Logged in as:</b> <span id="user"></span>
+        </div>
 
-<div id="quiz"></div>
+        <div>
+            <b>Time Left:</b> <span id="timer">--:--</span>
+        </div>
+    </div>
 
-<button id="submitBtn" onclick="submitQuiz()">Submit</button>
+    <div id="quiz"></div>
 
-<p id="result"></p>
+    <button id="submitBtn" onclick="submitQuiz()">Submit Quiz</button>
+
+    <p id="result"></p>
+
+</div>
+
 
 <script>
-// ------------------ GLOBAL VARIABLES FIRST ------------------
-let timerInterval;                      <!-- moved to top (fixes your error) -->
+// ------------------ GLOBALS ------------------
+let timerInterval;
+
 const quiz_id = "{{quiz_id}}";
 const answers = {};
 const token = localStorage.getItem("token");
 
-// username display
-document.getElementById("user").innerHTML = localStorage.getItem("username");
+// username text
+document.getElementById("user").innerHTML =
+    localStorage.getItem("username") ?? "User";
 
-// protect page
+// force login protection
 if(!token){
     window.location.href="/login/";
 }
@@ -56,24 +153,30 @@ function renderQuiz(data){
 
     data.questions.forEach(q => {
 
-        html += `<p><b>${q.text}</b></p>`;
+        html += `<div class='question'>
+                    <p><b>${q.text}</b></p>
+        `;
 
         q.options.forEach(o => {
             html += `
-                <input type="radio"
-                       name="q${q.id}"
-                       value="${o.id}"
-                       onchange="answers[${q.id}]='${o.id}'">
-                ${o.text}<br>
+                <label>
+                    <input type="radio"
+                        name="q${q.id}"
+                        value="${o.id}"
+                        onchange="answers[${q.id}]='${o.id}'">
+                    ${o.text}
+                </label><br>
             `;
         });
+
+        html += `</div>`;
     });
 
     document.getElementById("quiz").innerHTML = html;
 
-    // start timer
     startTimer(60);
 }
+
 
 
 // ------------------ TIMER ------------------
@@ -108,7 +211,8 @@ function disableOptions(){
 }
 
 
-// ------------------ SUBMIT QUIZ ------------------
+
+// ------------------ SUBMIT ------------------
 function submitQuiz(auto=false){
 
     document.getElementById("submitBtn").disabled = true;
@@ -130,11 +234,10 @@ function submitQuiz(auto=false){
         clearInterval(timerInterval);
         disableOptions();
 
-        // save data for result page
         sessionStorage.setItem("last_result", JSON.stringify(data));
-        sessionStorage.setItem("last_quiz_title", document.getElementById("title").innerText);
+        sessionStorage.setItem("last_quiz_title",
+            document.getElementById("title").innerText);
 
-        // go to result screen
         window.location.href = "/result/";
     });
 }

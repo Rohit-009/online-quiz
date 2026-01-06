@@ -1,18 +1,98 @@
-<h2>Register</h2>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
 
-<input id="username" placeholder="Username"><br>
-<input id="password" type="password" placeholder="Password"><br>
-<button onclick="register()">Create Account</button>
+    <style>
 
-<p id="msg"></p>
+        body{
+            margin:0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg,#8E2DE2,#4A00E0);
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            min-height:100vh;
+            color:white;
+        }
 
-<p>
-Already have an account?
-<a href="/login/">Login here</a>
-</p>
+        .card{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            padding:30px 40px;
+            border-radius:18px;
+            width:400px;
+            box-shadow:0 0 25px rgba(0,0,0,0.25);
+            text-align:center;
+        }
+
+        h2{
+            margin-top:0;
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin-top:12px;
+            border-radius:10px;
+            border:none;
+            outline:none;
+        }
+
+        button{
+            width:100%;
+            margin-top:15px;
+            padding:10px;
+            border:none;
+            border-radius:10px;
+            background:#00ff9c;
+            color:black;
+            font-weight:bold;
+            cursor:pointer;
+        }
+
+        button:hover{
+            background:#39ffb7;
+        }
+
+        a{
+            color:#00ffea;
+        }
+
+        #msg{
+            margin-top:8px;
+            color:#ffeb3b;
+            font-size:14px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>Create Account</h2>
+
+    <input id="username" placeholder="Username"><br>
+    <input id="password" type="password" placeholder="Password"><br>
+
+    <button onclick="register()">Register</button>
+
+    <p id="msg"></p>
+
+    <p>
+        Already have an account?
+        <a href="/login/">Login here</a>
+    </p>
+
+</div>
+
 
 <script>
 function register(){
+
   fetch("/api/accounts/register/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -23,12 +103,20 @@ function register(){
   })
   .then(res => res.json())
   .then(data => {
+
       if(data.message){
-          document.getElementById("msg").innerHTML = "Account created ✔ Redirecting to login...";
+          document.getElementById("msg").innerHTML =
+            "Account created ✔ Redirecting to login...";
+
           setTimeout(()=> window.location.href="/login/", 1200)
-      } else {
-          document.getElementById("msg").innerHTML = data.error || "Error occurred"
+      }
+      else{
+          document.getElementById("msg").innerHTML =
+            data.error || "Error occurred";
       }
   })
 }
 </script>
+
+</body>
+</html>

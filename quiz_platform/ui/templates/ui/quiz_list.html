@@ -2,23 +2,102 @@
 <html>
 <head>
     <title>Quiz List</title>
+
+    <style>
+        body{
+            margin:0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg,#8E2DE2,#4A00E0);
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            color:white;
+        }
+
+        .card{
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(12px);
+            padding:35px 45px;
+            border-radius:20px;
+            width:500px;
+            box-shadow:0 0 25px rgba(0,0,0,0.25);
+        }
+
+        h2{
+            text-align:center;
+            margin-top:0;
+        }
+
+        .quiz-item{
+            background: rgba(0,0,0,0.25);
+            padding:12px;
+            border-radius:12px;
+            margin-bottom:10px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        button{
+            border:none;
+            padding:8px 15px;
+            border-radius:10px;
+            cursor:pointer;
+            font-weight:bold;
+        }
+
+        .start{
+            background:#00ff9c;
+        }
+
+        .start:hover{
+            background:#3bffb3;
+        }
+
+        .logout{
+            width:100%;
+            margin-top:15px;
+            background:#ff5252;
+            color:white;
+        }
+
+        .logout:hover{
+            background:#ff6f6f;
+        }
+
+        .user{
+            text-align:center;
+            margin-bottom:10px;
+        }
+    </style>
+
 </head>
 
 <body>
 
-<h2>Available Quizzes</h2>
+<div class="card">
 
-<!-- 🔐 Block access if not logged in -->
+<h2>📚 Available Quizzes</h2>
+
+<p class="user">
+Logged in as <b id="uname"></b> 😊
+</p>
+
+<!-- 🚫 block access when not logged in -->
 <script>
 const token = localStorage.getItem("token");
 if(!token){
     window.location.href = "/login/";
 }
+document.getElementById("uname").innerHTML = localStorage.getItem("username");
 </script>
 
-<div id="list">Loading...</div>
+<div id="list">Loading quizzes...</div>
 
-<button onclick="logout()">Logout</button>
+<button class="logout" onclick="logout()">Logout</button>
+
+</div>
 
 <script>
 // ---------- LOAD QUIZZES ----------
@@ -31,10 +110,10 @@ fetch("/api/quizzes/")
     data.forEach(q => {
 
         html += `
-            <p>
-                <b>${q.title}</b>
-                <button onclick="startQuiz(${q.id})">Start</button>
-            </p>
+            <div class="quiz-item">
+                <span><b>${q.title}</b></span>
+                <button class="start" onclick="startQuiz(${q.id})">Start ▶</button>
+            </div>
         `;
     });
 
@@ -42,17 +121,15 @@ fetch("/api/quizzes/")
 });
 
 
-// ---------- PREFETCH QUIZ BEFORE ENTER ----------
+// ---------- PREFETCH QUIZ ----------
 function startQuiz(id){
 
     fetch("/api/quizzes/" + id + "/")
     .then(res => res.json())
     .then(data => {
 
-        // save quiz temporarily
         sessionStorage.setItem("current_quiz", JSON.stringify(data));
 
-        // go to quiz page
         window.location.href = "/quiz/" + id + "/";
     });
 }
