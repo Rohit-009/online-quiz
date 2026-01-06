@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,6 +96,7 @@ DATABASES = {
     }
 }
 
+ALLOWED_HOSTS = ['.onrender.com', 'localhost', '127.0.0.1', '[::1]']
 
 
 # Password validation
@@ -145,3 +147,5 @@ SIMPLE_JWT = {
 }
 LOGOUT_REDIRECT_URL = '/login/'
 
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
